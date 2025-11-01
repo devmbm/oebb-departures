@@ -254,6 +254,11 @@ export class IncrementCounter extends SingletonAction<DepartureSettings> {
 				const delay = this.extractAttribute(journeyTag, "delay") || "0";
 				const realtimeID = this.extractAttribute(journeyTag, "realtimeID") || "";
 
+				// Skip buses - they don't have platforms and would be incorrectly marked as cancelled
+				if (train.toLowerCase().startsWith("bus")) {
+					continue;
+				}
+
 				// Skip duplicate trains - ÖBB API sometimes includes internal service numbers (e.g., S 23700)
 				// alongside passenger-facing names (e.g., S 1) for the same train
 				// Prefer trains with real-time data and skip those with delay="-" if we already have the same train

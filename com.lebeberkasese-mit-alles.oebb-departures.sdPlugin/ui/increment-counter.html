@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <title>ÖBB Departures Settings</title>
+    <meta charset="utf-8" />
+    <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+</head>
+
+<body>
+    <!--
+        Learn more about property inspector components at https://sdpi-components.dev/docs/components
+    -->
+    <sdpi-item label="Station ID">
+        <sdpi-textfield
+            setting="stationId"
+            placeholder="e.g., 1290401"
+            default="1290401"
+            pattern="[0-9]+"
+            required>
+        </sdpi-textfield>
+    </sdpi-item>
+
+    <sdpi-item>
+        <details>
+            <summary>Common Station IDs</summary>
+            <ul style="font-size: 12px; margin: 8px 0; padding-left: 20px;">
+                <li>Wien Hauptbahnhof: <strong>1290401</strong></li>
+                <li>Wien Westbahnhof: <strong>1291501</strong></li>
+                <li>Wien Meidling: <strong>1191201</strong></li>
+                <li>Wien Praterstern: <strong>1290201</strong></li>
+                <li>Salzburg Hbf: <strong>8100002</strong></li>
+                <li>Innsbruck Hbf: <strong>8100108</strong></li>
+                <li>Graz Hbf: <strong>8100173</strong></li>
+                <li>Linz Hbf: <strong>8100013</strong></li>
+            </ul>
+        </details>
+    </sdpi-item>
+
+    <sdpi-item label="Refresh Interval">
+        <sdpi-select setting="refreshInterval" default="120">
+            <option value="60">1 minute</option>
+            <option value="120">2 minutes</option>
+            <option value="300">5 minutes</option>
+            <option value="600">10 minutes</option>
+            <option value="900">15 minutes</option>
+            <option value="1800">30 minutes</option>
+        </sdpi-select>
+    </sdpi-item>
+
+    <sdpi-item label="Manual Refresh">
+        <button class="sdpi-item-value" id="refreshButton" style="width: 100%; padding: 8px;">
+            Refresh Now
+        </button>
+    </sdpi-item>
+
+    <script>
+        // Handle refresh button click
+        document.getElementById('refreshButton').addEventListener('click', () => {
+            // Trigger a keyDown event to refresh
+            if (window.$SD) {
+                window.$SD.api.sendToPlugin('refreshNow', {});
+            }
+        });
+    </script>
+
+    <sdpi-item label="Enable Text Scrolling">
+        <sdpi-checkbox setting="enableScrolling" default="true"></sdpi-checkbox>
+    </sdpi-item>
+
+    <sdpi-item label="Train Line Filter">
+        <sdpi-textfield
+            setting="trainFilter"
+            placeholder="e.g., S1, S2, REX1"
+            default="">
+        </sdpi-textfield>
+    </sdpi-item>
+
+    <sdpi-item>
+        <details>
+            <summary>Filter Help</summary>
+            <p style="font-size: 12px; margin: 8px 0;">
+                Enter train line names separated by commas to show only those lines.<br>
+                Example: <strong>S1, S2, REX1</strong><br>
+                Leave empty to show all trains.
+            </p>
+        </details>
+    </sdpi-item>
+
+    <sdpi-item label="Number of Departures">
+        <sdpi-select setting="departureCount" default="1">
+            <option value="1">1 departure</option>
+            <option value="2">2 departures</option>
+            <option value="3">3 departures</option>
+            <option value="4">4 departures</option>
+            <option value="5">5 departures</option>
+        </sdpi-select>
+    </sdpi-item>
+
+    <sdpi-item label="Cycle Interval">
+        <sdpi-select setting="cycleInterval" default="10">
+            <option value="2">2 seconds</option>
+            <option value="3">3 seconds</option>
+            <option value="4">4 seconds</option>
+            <option value="5">5 seconds</option>
+            <option value="6">6 seconds</option>
+            <option value="8">8 seconds</option>
+            <option value="10">10 seconds</option>
+        </sdpi-select>
+    </sdpi-item>
+
+    <sdpi-item label="Line 1">
+        <sdpi-select setting="line1" default="train">
+            <option value="train">Train Name</option>
+            <option value="trainWithPlatform">Train Name + Platform</option>
+            <option value="destination">Destination</option>
+            <option value="scheduledTime">Scheduled Time</option>
+            <option value="actualTime">Actual Departure Time</option>
+            <option value="platform">Platform</option>
+            <option value="delay">Delay Status</option>
+        </sdpi-select>
+    </sdpi-item>
+
+    <sdpi-item label="Line 2">
+        <sdpi-select setting="line2" default="destination">
+            <option value="train">Train Name</option>
+            <option value="trainWithPlatform">Train Name + Platform</option>
+            <option value="destination">Destination</option>
+            <option value="scheduledTime">Scheduled Time</option>
+            <option value="actualTime">Actual Departure Time</option>
+            <option value="platform">Platform</option>
+            <option value="delay">Delay Status</option>
+        </sdpi-select>
+    </sdpi-item>
+
+    <sdpi-item label="Line 3">
+        <sdpi-select setting="line3" default="actualTime">
+            <option value="train">Train Name</option>
+            <option value="trainWithPlatform">Train Name + Platform</option>
+            <option value="destination">Destination</option>
+            <option value="scheduledTime">Scheduled Time</option>
+            <option value="actualTime">Actual Departure Time</option>
+            <option value="platform">Platform</option>
+            <option value="delay">Delay Status</option>
+        </sdpi-select>
+    </sdpi-item>
+
+    <sdpi-item>
+        <details>
+            <summary>Field Information</summary>
+            <ul style="font-size: 12px; margin: 8px 0; padding-left: 20px;">
+                <li><strong>Train Name:</strong> e.g., S80, RJ 373</li>
+                <li><strong>Train Name + Platform:</strong> Train name (left) and platform number (right)</li>
+                <li><strong>Destination:</strong> Final destination station</li>
+                <li><strong>Scheduled Time:</strong> Original departure time (white)</li>
+                <li><strong>Actual Departure Time:</strong> Scheduled time (white) or delayed time (yellow)</li>
+                <li><strong>Platform:</strong> Departure platform/track</li>
+                <li><strong>Delay Status:</strong> Shows delay info or "On time" (green)</li>
+            </ul>
+        </details>
+    </sdpi-item>
+</body>
+
+</html>

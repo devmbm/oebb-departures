@@ -281,29 +281,40 @@ export class IncrementCounter extends SingletonAction<DepartureSettings> {
 				// Platform might be missing for cancelled trains or private operators
 				let platform = this.extractAttribute(journeyTag, "platform") || "";
 
-				// Check if train is cancelled:
-				// 1. delay="cancel" - explicitly cancelled
-				// 2. delay="-" AND no realtimeID - cancelled train still in schedule but not operating
-				const isCancelled = delay === "cancel" || (delay === "-" && !realtimeID);
+				// Detect cancellation and delay status
+				// Based on XML API behavior:
+				// - delay="cancel" → explicitly cancelled
+				// - delay="+ X" → delayed by X minutes (e.g., "+ 5")
+				// - delay="0" → on time
+				// - delay="-" → no real-time data available (not necessarily cancelled)
 
-				// Calculate actual time and delay info
-				let actualTime = scheduledTime;
+				let isCancelled = false;
 				let isDelayed = false;
+				let actualTime = scheduledTime;
+				let delayMinutes = 0;
 
-				if (delay && delay !== "0" && delay !== "cancel" && delay !== "-") {
-					isDelayed = true;
-					// Parse delay (format: "+ 5" for 5 minutes)
+				if (delay === "cancel") {
+					// Explicitly cancelled by ÖBB
+					isCancelled = true;
+				} else if (delay && delay.startsWith("+")) {
+					// Train is delayed - parse delay amount
 					const delayMatch = delay.match(/\+\s*(\d+)/);
-					if (delayMatch && scheduledTime !== "N/A") {
-						const delayMinutes = parseInt(delayMatch[1], 10);
-						// Calculate actual time
-						const [hours, minutes] = scheduledTime.split(':').map(Number);
-						const totalMinutes = hours * 60 + minutes + delayMinutes;
-						const newHours = Math.floor(totalMinutes / 60) % 24;
-						const newMinutes = totalMinutes % 60;
-						actualTime = `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}`;
+					if (delayMatch) {
+						delayMinutes = parseInt(delayMatch[1], 10);
+						isDelayed = true;
+
+						// Calculate actual departure time
+						if (scheduledTime !== "N/A") {
+							const [hours, minutes] = scheduledTime.split(':').map(Number);
+							const totalMinutes = hours * 60 + minutes + delayMinutes;
+							const newHours = Math.floor(totalMinutes / 60) % 24;
+							const newMinutes = totalMinutes % 60;
+							actualTime = `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}`;
+						}
 					}
 				}
+				// Note: delay="-" means no real-time data, but train may still operate
+				// We don't mark it as cancelled unless explicitly stated
 
 				departures.push({
 					train,
@@ -542,11 +553,12 @@ export class IncrementCounter extends SingletonAction<DepartureSettings> {
 				return { text: departure.actualTime, color };
 
 			case "platform":
+				// Show complete platform number when displayed standalone
 				// Only show platform if it exists, otherwise show nothing
 				if (!departure.platform) {
 					return { text: "", color: "#FFFFFF" };
 				}
-				return { text: `Pl. ${departure.platform}`, color: "#FFFFFF" };
+				return { text: departure.platform, color: "#FFFFFF" };
 
 			case "delay":
 				if (departure.delay === "cancel") {

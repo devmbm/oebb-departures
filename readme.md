@@ -5,3 +5,7 @@ _as of 01 Nov 2025 this is still in work in progress_
 - ÖBB API based on official and non-official documentation I found
 
 This is still a work in progress and needs to be tested. For now the repository is private.
+
+# Installing
+
+The installer has a .streamDeckPlugin extension
